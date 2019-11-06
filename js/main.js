@@ -157,21 +157,23 @@ $(function () {
 	history.replaceState(null, document.title, location.origin + location.pathname);
 	// 绑定主页虚假输入框点击事件
 	$(".ornament-input-group").click(function () {
+		$('body').css("pointer-events", "none");
 		history.pushState(null, document.title, changeParam("page", "search"));
 		$(".s-temp").focus();
 		//主页
 		$(".ornament-input-group,.bookmark").addClass("animation");
 		//搜索页
-		$(".page-search").show().addClass("animation").css("pointer-events", "none");
+		$(".page-search").show().addClass("animation");
 		$(".input-bg").addClass("animation");
 		$(".shortcut").show();
 		$(".page-search").on('animationend', function (evt) {
 			if (evt.target !== this) {
 				return;
 			}
-			$(".page-search").off('animationend').css("pointer-events", "");
+			$(".page-search").off('animationend');
 			$(".shortcut").addClass("animation");
 			$(".search-input").focus().val('');
+			$('body').css("pointer-events", "");
 		});
 	});
 
@@ -184,18 +186,19 @@ $(function () {
 	// 返回按键被点击
 	window.addEventListener("popstate", function (e) {
 		if ($('.page-search').is(":visible")) {
+			$('body').css("pointer-events", "none");
 			history.replaceState(null, document.title, location.origin + location.pathname);
 			//主页
 			$(".ornament-input-group,.bookmark").removeClass("animation");
 			//搜索页
-			$(".page-search").removeClass("animation").css("pointer-events", "none");
+			$(".page-search").removeClass("animation");
 			$(".input-bg").removeClass("animation");
 			$(".shortcut").removeClass("animation");
 			$(".page-search").on('transitionend', function (evt) {
 				if (evt.target !== this) {
 					return;
 				}
-				$(".page-search").off('transitionend').css("pointer-events", "");
+				$(".page-search").off('transitionend');
 				$(".shortcut").hide();
 				$(".page-search").hide();
 				//搜索页内容初始化
@@ -203,6 +206,7 @@ $(function () {
 				$(".search-btn").html("取消");
 				$(".shortcut1").show();
 				$(".shortcut2,.shortcut3,.empty-input").hide();
+				$('body').css("pointer-events", "");
 			});
 		}
 	}, false);
@@ -234,7 +238,7 @@ $(function () {
 				type: "GET",
 				dataType: "jsonp",
 				data: { wd: t, cb: "sug" },
-				timeout: 5e3,
+				timeout: 5000,
 				jsonpCallback: "sug",
 				success: function (res) {
 					var data = res.s;
@@ -253,8 +257,9 @@ $(function () {
 			$.ajax({
 				url: "https://quark.sm.cn/api/qs",
 				type: "GET",
-				data: { query: t },
 				dataType: "jsonp",
+				data: { query: t },
+				timeout: 5000,
 				success: function (res) {
 					var data = res.data;
 					var html = '<li>快搜:</li>';
@@ -276,26 +281,28 @@ $(function () {
 		$(".search-input").focus().val($(".search-input").val() + evt.target.innerText).trigger("propertychange");
 	});
 
-	$(".shortcut3").on("click", "li", function () {
-		var text = $(this).text();
-		var data = {
-			百科: "https://baike.baidu.com/item/",
-			视频: "https://www.soku.com/m/y/video?q=",
-			豆瓣: "https://m.douban.com/search/?q=",
-			新闻: "https://news.baidu.com/news#/search/",
-			图片: "https://cn.bing.com/images/search?q=",
-			微博: "https://m.weibo.cn/search?containerid=100103type=1&q=",
-			音乐: "https://h.xiami.com/#!/search/result/?key=",
-			知乎: "https://www.zhihu.com/search?q=",
-			小说: "https://m.qidian.com/search?kw=",
-			旅游: "https://h5.m.taobao.com/trip/rx-search/list/index.html?keyword=",
-			地图: "https://m.amap.com/search/mapview/keywords=",
-			电视剧: "https://m.v.qq.com/search.html?keyWord=",
-			股票: "https://emwap.eastmoney.com/info/search/index?t=14&k=",
-			汽车: "http://sou.m.autohome.com.cn/zonghe?q="
-		}
-		if (data[text]) {
-			location.href = data[text] + $(".search-input").val();
+	$(".shortcut3").click(function (evt) {
+		if (evt.target.nodeName === "LI") {
+			var text = evt.target.innerText;
+			var data = {
+				百科: "https://baike.baidu.com/item/",
+				视频: "https://www.soku.com/m/y/video?q=",
+				豆瓣: "https://m.douban.com/search/?q=",
+				新闻: "https://news.baidu.com/news#/search/",
+				图片: "https://cn.bing.com/images/search?q=",
+				微博: "https://m.weibo.cn/search?containerid=100103type=1&q=",
+				音乐: "http://m.music.migu.cn/v3/search?keyword=",
+				知乎: "https://www.zhihu.com/search?q=",
+				小说: "https://m.qidian.com/search?kw=",
+				旅游: "https://h5.m.taobao.com/trip/rx-search/list/index.html?keyword=",
+				地图: "https://m.amap.com/search/mapview/keywords=",
+				电视剧: "https://m.v.qq.com/search.html?keyWord=",
+				股票: "https://emwap.eastmoney.com/info/search/index?t=14&k=",
+				汽车: "http://sou.m.autohome.com.cn/zonghe?q="
+			}
+			if (data[text]) {
+				location.href = data[text] + $(".search-input").val();
+			}
 		}
 	});
 
@@ -688,9 +695,13 @@ $(function () {
 				<li class="set-option" data-value="delLogo">
 					<p class="set-title">恢复默认背景和LOGO</p>
 				</li>
-				<li class="set-option" data-value="download">
+				<li class="set-option" data-value="openurl">
 					<p class="set-title">百度云下载</p>
 					<p class="set-description">https://pan.baidu.com/s/1dEDjwXF</p>
+				</li>
+				<li class="set-option" data-value="openurl">
+					<p class="set-title">Github</p>
+					<p class="set-description">https://github.com/liumingye/quarkHomePage</p>
 				</li>
 				<li class="set-option">
 					<p class="set-title">关于</p>
@@ -755,8 +766,8 @@ $(function () {
 				Storage.setData.bookcolor = "black";
 				localStorage.setItem("setData", JSON.stringify(Storage.setData));
 				location.reload();
-			} else if (value === "download") {
-				open('https://pan.baidu.com/s/1dEDjwXF');
+			} else if (value === "openurl") {
+				open($(this).find('.set-description').text());
 			}
 		});
 
@@ -780,11 +791,11 @@ $(function () {
 					return;
 				}
 				if (phase === 'move') {
-					if (distance <= 20 || direction !== "down") {
+					if (distance <= 10 || direction !== "down") {
 						return;
 					}
 					var height = $(document).height();
-					$('.ornament-input-group').css({ 'transform': 'translateY(' + (distance / height) * 70 + 'px)', 'transition': 'none' });
+					$('.ornament-input-group').css({ 'transform': 'translate3d(0,' + (distance / height) * 70 + 'px,0)', 'transition': 'none' });
 					$('.logo').attr("disabled", "disabled").css({ 'opacity': 1 - (distance / height) * 4, 'transition': 'none' });
 					$('.bookmark').attr("disabled", "disabled").css({ 'opacity': 1 - (distance / height) * 4, 'transform': 'scale(' + (1 - (distance / height) * .2) + ')', 'transition': 'none' });
 				} else if (phase === 'end' || phase === 'cancel') {

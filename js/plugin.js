@@ -20,7 +20,7 @@ $.fn.longPress = function (fn) {
 		$this[i].addEventListener("touchmove", function (e) {
 			var touch = e.targetTouches[0];
 			movePos = { x: touch.pageX - startPos.x, y: touch.pageY - startPos.y };
-			Math.abs(movePos.x - startPos.x) > 10 || (Math.abs(movePos.y - startPos.y) > 10 && clearTimeout(timeout));
+			(Math.abs(movePos.x) > 10 || Math.abs(movePos.y) > 10) && clearTimeout(timeout);
 		}, { passive: true });
 		$this[i].addEventListener("touchend", function () {
 			clearTimeout(timeout);
