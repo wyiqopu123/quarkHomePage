@@ -291,7 +291,8 @@ $(function () {
 			旅游: "https://h5.m.taobao.com/trip/rx-search/list/index.html?keyword=",
 			地图: "https://m.amap.com/search/mapview/keywords=",
 			电视剧: "https://m.v.qq.com/search.html?keyWord=",
-			股票: ""
+			股票: "https://emwap.eastmoney.com/info/search/index?t=14&k=",
+			汽车: "http://sou.m.autohome.com.cn/zonghe?q="
 		}
 		if (data[text]) {
 			location.href = data[text] + $(".search-input").val();
