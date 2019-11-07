@@ -8,7 +8,8 @@
 }
 body {
 	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-	-webkit-user-select: none;
+    -webkit-user-select: none;
+    font-size: 14px;
 }
 body,html {
 	height: 100%;
@@ -46,19 +47,6 @@ body,html {
 	--dark: #313a46;
 }
 /**
- * 亮色主题
-*/
-.theme-white .ornament-input-group{
-    border-color:var(--white);
-}
-.theme-white .bookmark .list .text{
-    color:var(--white);
-    text-shadow: 0 0 4px var(--dark);
-}
-.theme-white .logo svg path{
-    fill:var(--white);
-}
-/**
  * home页面
 */
 .page-home {
@@ -70,6 +58,7 @@ body,html {
 .logo {
 	margin: 0 auto;
     width: 40%;
+    min-height: 48px;
     max-height: 150px;
     margin-bottom: 20px;
     background-position: center;
@@ -168,6 +157,23 @@ body{font-family:Arial,Roboto,'Droid Sans';
 .addbook.animation{
     opacity: 0;
 }
+/**
+ * 浅色图标
+*/
+.theme-white .ornament-input-group{
+    border-color:var(--white);
+}
+.theme-white .bookmark .list .text{
+    color:var(--white);
+    text-shadow: 0 0 4px var(--dark);
+}
+.theme-white .logo svg path{
+    fill:var(--white);
+}
+/**
+ * 夜间模式
+*/
+
 /* 背景页面 */
 .addbook-shade,.page-search,.set-from{position:absolute;left:0;top:0;width:100%;height:100%;background:#fff;animation:fadeIn .3s;}
 .addbook-shade{background:rgba(0,0,0,0.5);}
@@ -268,14 +274,14 @@ body{font-family:Arial,Roboto,'Droid Sans';
 }
 .search-btn:active{color:#00f;}
 .shortcut{
-    padding:0 10px;background:#eee;line-height:25px;display:none;
+    padding:0 10px;background:#eee;line-height:25px;
     height: 44px;
     line-height: 44px;
     font-size:14px;
 }
 .shortcut .content{
     opacity: 0;
-    transition: opacity ease-in .25s;
+    transition: opacity ease-in .3s .2s;
 }
 .shortcut.animation .content{
     opacity: 1;
@@ -322,25 +328,25 @@ body{font-family:Arial,Roboto,'Droid Sans';
 }
 .set-option-from{overflow:auto;height:calc(100% - 50px);}
 .set-header{
-    height: 50px;
-    line-height: 50px;
+    height: 44px;
+    line-height: 44px;
     border-bottom:1px solid #eee;
 }
 .set-back{
-    position:relative;
-    height: 50px;
+    position:absolute;
+    height: 44px;
     width: 64px;
     float: left;
 }
 .set-back:after,.set-back:before{
     content: "";
-    width: 12px;
+    width: 10px;
     height: 1px;
     position: absolute;
-    top: 24px;
+    top: 21px;
     background: #222;
     transform-origin: 0;
-    left: 28px;
+    left: 30px;
 }
 .set-back:after{
     transform: rotate(-45deg);
@@ -349,12 +355,13 @@ body{font-family:Arial,Roboto,'Droid Sans';
     transform: rotate(45deg);
 }
 .set-logo{
-    color:var(--dark);font-weight:bold;font-size:18px;
+    color:var(--dark);font-weight:bold;font-size:16px;
+    text-align: center;
 }
 .set-option{padding:15px 20px;}
 .set-option:active{background:#eee}
 .set-title{float:left;}
-.set-description{margin-top:25px;color:#666;font-size:13px;}
+.set-description{margin-top:20px;color:#666;font-size:13px;}
 .set-select{float:right;
     background-color: #fff;
 }
