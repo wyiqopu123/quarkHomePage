@@ -88,25 +88,66 @@ var loadStorage = {
 			this.init();
 			Storage.setData = storage.get("setData");
 		}
-		$('body').addClass('theme-' + Storage.setData.bookcolor);
-		if (Storage.setData.wallpaper) {
-			$("body").css("background-image", "url(" + Storage.setData.wallpaper + ")");
-		} else {
-			$("body").css("background-image", "");
-		}
+		// 加载LOGO
 		if (Storage.setData.logo) {
 			$(".logo").html('<img src="' + Storage.setData.logo + '" />');
 		} else {
 			$(".logo").html('<svg viewBox="0 0 3113 1024"><path d="M3112.906814 476.052327l-339.310283 140.921746A121.156099 121.156099 0 0 0 2896.216752 695.670633a159.955333 159.955333 0 0 0 124.816404-73.206102l86.01717 58.564881a259.515632 259.515632 0 0 1-211.565635 113.103428 253.659143 253.659143 0 0 1-251.828991-253.659144c0-96.266024 61.127095-259.149601 240.848076-259.149601S3112.906814 476.052327 3112.906814 476.052327z m-129.20877-39.897326a117.495794 117.495794 0 0 0-109.809153-53.440454 132.869075 132.869075 0 0 0-121.156099 146.412204zM2481.870215 26.932891h113.469458v753.65682h-113.469458zM2302.515265 298.161499h105.050756v475.839663c0 121.522129-73.206102 249.632808-241.214106 249.632807A241.580137 241.580137 0 0 1 1941.609182 873.19543l96.266024-40.629387a139.823655 139.823655 0 0 0 132.503045 92.97175c117.495794 0 131.404953-107.61297 131.404953-144.582052v-51.610301A166.909913 166.909913 0 0 1 2161.227488 793.400779a249.632808 249.632808 0 0 1-239.749984-256.221357 248.168686 248.168686 0 0 1 241.214106-256.221357 168.740065 168.740065 0 0 1 140.555716 63.323278zM2170.01222 695.670633A148.974418 148.974418 0 0 0 2307.639692 539.375605a139.823655 139.823655 0 1 0-277.085096 0A148.974418 148.974418 0 0 0 2170.01222 695.670633zM1619.136303 794.13284a256.221357 256.221357 0 1 1 256.221357-256.221357 256.221357 256.221357 0 0 1-256.221357 256.221357z m0-100.65839a150.072509 150.072509 0 0 0 143.48396-155.562967 143.84999 143.84999 0 1 0-286.96792 0 150.072509 150.072509 0 0 0 141.653807 155.562967zM1063.135958 794.13284a256.221357 256.221357 0 1 1 256.221357-256.221357 256.221357 256.221357 0 0 1-256.221357 256.221357z m0-100.65839a150.072509 150.072509 0 0 0 143.48396-155.562967A150.072509 150.072509 0 0 0 1063.135958 381.982486a150.072509 150.072509 0 0 0-143.48396 155.562966A150.072509 150.072509 0 0 0 1063.135958 693.47445zM767.749337 366.243174v-4.392366h-366.03051v107.246939h262.443875c-24.524044 146.412204-126.646556 214.493879-263.541967 214.493879A286.784905 286.784905 0 0 1 400.620735 110.021817a266.836242 266.836242 0 0 1 195.460293 76.500376L672.947435 110.021817a370.422876 370.422876 0 0 0-275.987005-109.809153 396.960088 396.960088 0 0 0 0 793.920176c222.54655 1.830153 407.757988-155.196936 370.788907-427.889666z" fill="#319FFF"></path></svg>');
 		}
+		// 删除掉VIA浏览器夜间模式的暗色支持
+		$("head").on("DOMNodeInserted",function(evt){
+			if(evt.target.id === "via_inject_css_night"){
+				$("#via_inject_css_night").remove();
+			}
+		});
+		$("#via_inject_css_night").remove();
+		// 加载夜间模式
 		if (Storage.setData.nightMode === "1") {
-			$('body').addClass('nightMode');
+			$("body").removeClass('theme-black theme-white').addClass('theme-white');
+			$("body").css("background-image", "");
+			$("#nightCss").removeAttr('disabled');
 		} else {
-			$('body').removeClass('nightMode');
+			if (Storage.setData.wallpaper) {
+				$("body").css("background-image", "url(" + Storage.setData.wallpaper + ")");
+			} else {
+				$("body").css("background-image", "");
+			}
+			$("body").removeClass('theme-black theme-white').addClass('theme-' + Storage.setData.bookcolor);
+			$("#nightCss").attr('disabled','disabled');
 		}
 	}
 };
 loadStorage.setItem();
+
+/**
+ * DOM长按事件
+ */
+$.fn.longPress = function (fn) {
+	var timeout = void 0,
+		$this = this,
+		startPos,
+		movePos,
+		endPos;
+	for (var i = $this.length - 1; i > -1; i--) {
+		$this[i].addEventListener("touchstart", function (e) {
+			var touch = e.targetTouches[0];
+			startPos = { x: touch.pageX, y: touch.pageY };
+			timeout = setTimeout(function () {
+				if ($this.attr("disabled") === undefined) {
+					fn();
+				}
+			}, 700);
+		}, { passive: true });
+		$this[i].addEventListener("touchmove", function (e) {
+			var touch = e.targetTouches[0];
+			movePos = { x: touch.pageX - startPos.x, y: touch.pageY - startPos.y };
+			(Math.abs(movePos.x) > 10 || Math.abs(movePos.y) > 10) && clearTimeout(timeout);
+		}, { passive: true });
+		$this[i].addEventListener("touchend", function () {
+			clearTimeout(timeout);
+		}, { passive: true });
+	}
+};
 
 /**
  * 首页书签模块
@@ -513,7 +554,7 @@ function choice() {
 	// 构建HTML
 	var data = { '常用': [{ hl: "百度", shl: "百度一下你就知道", img: "baidu", url: "https://m.baidu.com" }, { hl: "腾讯", shl: "手机腾讯网", img: "qq", url: "https://xw.qq.com" }, { hl: "新浪", shl: "联通世界的超级平台", img: "sina", url: "https://sina.cn" }, { hl: "谷歌", shl: "最大的搜索引擎", img: "google", url: "https://www.google.com.hk" }, { hl: "搜狐", shl: "懂手机更懂你", img: "sina", url: "https://m.sohu.com" }, { hl: "网易", shl: "各有态度", img: "netease", url: "https://3g.163.com" }, { hl: "起点中文网", shl: "精彩小说大全", img: "qidian", url: "https://m.qidian.com" }, { hl: "淘宝", shl: "淘我喜欢", img: "taobao", url: "https://m.taobao.com" }, { hl: "京东", shl: "多好快省品质生活", img: "jd", url: "https://m.jd.com" }, { hl: "百度贴吧", shl: "最大的中文社区", img: "tieba", url: "http://c.tieba.baidu.com" }, { hl: "12306", shl: "你离世界只差一张票", img: "12306", url: "https://www.12306.cn" }, { hl: "飞猪", shl: "阿里旅行再升级", img: "flypig", url: "https://www.fliggy.com" }, { hl: "查快递", shl: "快递查询", img: "express_100", url: "https://m.kuaidi100.com" }, { hl: "优酷", shl: "热门视频全面覆盖", img: "youku", url: "https://www.youku.com" }, { hl: "爱奇艺", shl: "中国领先的视频门户", img: "iqiyi", url: "https://m.iqiyi.com" }, { hl: "斗鱼", shl: "每个人的直播平台", img: "douyu", url: "https://m.douyu.com" }, { hl: "虎牙", shl: "中国领先的互动直播平台", img: "huya", url: "https://m.huya.com" }, { hl: "美团", shl: "吃喝玩乐全都有", img: "meituan", url: "http://i.meituan.com" }, { hl: "小米", shl: "小米官网", img: "xiaomi", url: "https://m.mi.com" }, { hl: "58同城", shl: "让生活更简单", img: "tongcheng", url: "https://m.58.com" }, { hl: "九游", shl: "发现更多好游戏", img: "game_9", url: "http://a.9game.cn" }, { hl: "虎扑", shl: "最篮球的世界", img: "hupu", url: "https://m.hupu.com" }], '科技': [{ hl: "知乎", shl: "知识分享社区", img: "zhihu", url: "https://www.zhihu.com" }, { hl: "36kr", shl: "互联网创业资讯", img: "kr36", url: "https://36kr.com" }, { hl: "少数派", shl: "高质量应用推荐", img: "sspai", url: "https://sspai.com" }, { hl: "爱范儿", shl: "泛科技媒体", img: "ifanr", url: "https://www.ifanr.com" }, { hl: "ZEALER", shl: "电子产品评测网站", img: "zealer", url: "https://m.zealer.com" }, { hl: "瘾科技", shl: "科技新闻和测评", img: "engadget", url: "https://cn.engadget.com" }, { hl: "虎嗅网", shl: "科技媒体", img: "huxiu", url: "https://m.huxiu.com" }, { hl: "品玩", shl: "有品好玩的科技", img: "pingwest", url: "https://www.pingwest.com" }, { hl: "简书", shl: "优质原创的内容社区", img: "jianshu", url: "https://www.jianshu.com" }, { hl: "V2EX", shl: "关于分享和探索的地方", img: "v2ex", url: "https://www.v2ex.com" }], '生活': [{ hl: "豆瓣", shl: "一个神奇的社区", img: "douban", url: "https://m.douban.com/home_guide" }, { hl: "轻芒杂志", shl: "生活兴趣杂志", img: "qingmang", url: "http://zuimeia.com" }, { hl: "ONE", shl: "韩寒监制", img: "one", url: "http://m.wufazhuce.com" }, { hl: "蚂蜂窝", shl: "旅游攻略社区", img: "mafengwo", url: "https://m.mafengwo.cn" }, { hl: "小红书", shl: "可以买到国外的好东西", img: "xiaohongshu", url: "https://www.xiaohongshu.com" }, { hl: "什么值得买", shl: "应该能省点钱吧", img: "smzdm", url: "https://m.smzdm.com" }, { hl: "淘票票", shl: "不看书，就看几场电影吧", img: "taopiaopiao", url: "https://dianying.taobao.com" }, { hl: "下厨房", shl: "是男人就学做几道菜", img: "xiachufang", url: "https://m.xiachufang.com" }, { hl: "ENJOY", shl: "高端美食团购", img: "enjoy", url: "https://enjoy.ricebook.com" }], '工具': [{ hl: "豌豆荚设计", shl: "发现最优美的应用", img: "wandoujia", url: "https://m.wandoujia.com/award" }, { hl: "喜马拉雅听", shl: "音频分享平台", img: "ximalaya", url: "https://m.ximalaya.com" }, { hl: "Mozilla", shl: "学习web开发的最佳实践", img: "mozilla", url: "https://developer.mozilla.org/zh-CN" }, { hl: "网易公开课", shl: "人chou就要多学习", img: "netease_edu_study", url: "http://m.open.163.com" }, { hl: "石墨文档", shl: "可多人实时协作的云端文档", img: "sm", url: "https://shimo.im" }] },
 		html = '<div class="page-bg"></div><div class="page-choice"><div class="page-content"><ul class="choice-ul">',
-		tabHtml = '<li>捷径</li>',
+		tabHtml = '<li class="current">捷径</li>',
 		contentHtml = `<li class="choice-cut swiper-slide">
 				<div class="list weather w2 h2"><a href="https://caiyunapp.com/h5"><div class="content"><span>访问中</span><span></span><span></span></div></a></div>
 				<div class="list type1 h2"><div class="content" style="background-image:linear-gradient(to right bottom, #00be96, #7dedc8)"><span class="hl">一言</span><span class="shl" id="hitokoto" style="float: left;width: 100%;height: 96px;white-space: pre-line;"><script src="https://v1.hitokoto.cn/?encode=js&select=%23hitokoto" defer></script></span></div></div>
@@ -544,7 +585,6 @@ function choice() {
 
 	var dom = $(".choice-ul li");
 	var width = dom.width();
-	dom.eq(0).css("color", "#000");
 	$(".active-span").css("transform", "translate3d(" + (width / 2 - 9) + "px,0,0)");
 
 	setTimeout(function () {
@@ -565,9 +605,9 @@ function choice() {
 			on: {
 				slideChange: function () {
 					var i = this.activeIndex;
-					dom.eq(last_page).css("color", "#999");
+					dom.eq(last_page).removeClass("current");
 					$(".active-span").css("transform", "translate3d(" + (width * i + width / 2 - 9) + "px,0,0)");
-					dom.eq(i).css("color", "#000");
+					dom.eq(i).addClass("current");
 					last_page = i;
 				}
 			}
@@ -810,7 +850,7 @@ $(".logo").click(() => {
 				</li>
 				<li class="set-option">
 					<p class="set-title">关于</p>
-					<p class="set-description">当前版本：1.43（20191105测试版）<br>作者：BigLop</p>
+					<p class="set-description">当前版本：1.43（20191108测试版）<br>作者：BigLop</p>
 				</li>
 			</ul>
 			<input type="file" id="set-upload" />
@@ -889,35 +929,4 @@ $(".logo").click(() => {
 	$(".set-from").addClass('animation');
 });
 
-$(".page-home").swipe(
-	{
-		swipeStatus: function (event, phase, direction, distance) {
-			if ($('.delbook').length !== 0) {
-				return;
-			}
-			if (phase === 'move') {
-				if (distance <= 10 || direction !== "down") {
-					return;
-				}
-				var height = $(document).height();
-				$('.ornament-input-group').css({ 'transform': 'translate3d(0,' + (distance / height) * 70 + 'px,0)', 'transition': 'none' });
-				$('.logo').attr("disabled", "disabled").css({ 'opacity': 1 - (distance / height) * 4, 'transition': 'none' });
-				$('.bookmark').attr("disabled", "disabled").css({ 'opacity': 1 - (distance / height) * 4, 'transform': 'scale(' + (1 - (distance / height) * .2) + ')', 'transition': 'none' });
-			} else if (phase === 'end' || phase === 'cancel') {
-				$('.logo').removeAttr("disabled").removeAttr('style');
-				$('.bookmark').removeAttr("disabled").removeAttr('style');
-				$('.ornament-input-group').removeAttr('style');
-				if (distance >= 100 && direction === "down") {
-					$('.ornament-input-group').click();
-					$('.logo').css('opacity', '0');
-					$('.bookmark').css('opacity', '0');
-					setTimeout(function () {
-						$('.logo').css('opacity', '');
-						$('.bookmark').css('opacity', '');
-					}, 200);
-				}
-			}
-		}
-	}
-);
 //)

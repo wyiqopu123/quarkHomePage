@@ -1,33 +1,3 @@
-/**
- * DOM长按事件
- */
-$.fn.longPress = function (fn) {
-	var timeout = void 0,
-		$this = this,
-		startPos,
-		movePos,
-		endPos;
-	for (var i = $this.length - 1; i > -1; i--) {
-		$this[i].addEventListener("touchstart", function (e) {
-			var touch = e.targetTouches[0];
-			startPos = { x: touch.pageX, y: touch.pageY };
-			timeout = setTimeout(function () {
-				if ($this.attr("disabled") === undefined) {
-					fn();
-				}
-			}, 700);
-		}, { passive: true });
-		$this[i].addEventListener("touchmove", function (e) {
-			var touch = e.targetTouches[0];
-			movePos = { x: touch.pageX - startPos.x, y: touch.pageY - startPos.y };
-			(Math.abs(movePos.x) > 10 || Math.abs(movePos.y) > 10) && clearTimeout(timeout);
-		}, { passive: true });
-		$this[i].addEventListener("touchend", function () {
-			clearTimeout(timeout);
-		}, { passive: true });
-	}
-};
-
 /*!
  * @fileOverview TouchSwipe - jQuery Plugin
  * @version 1.6.18
@@ -64,3 +34,36 @@ $.fn.longPress = function (fn) {
  * 绘制文字图标
 */
 var textBecomeImg=function(text){var canvas=document.createElement('canvas');canvas.height=100;canvas.width=100;var context=canvas.getContext('2d');context.fillStyle="#f5f5f5";context.arc(50,50,46,Math.PI*2,0,true);context.fill();context.fillStyle='#222';context.font="40px Arial";context.textAlign='center';context.textBaseline='middle';context.fillText(text,50,52);var dataUrl=canvas.toDataURL('image/png');return dataUrl;}
+
+
+$(".page-home").swipe(
+	{
+		swipeStatus: function (event, phase, direction, distance) {
+			if ($('.delbook').length !== 0) {
+				return;
+			}
+			if (phase === 'move') {
+				if (distance <= 10 || direction !== "down") {
+					return;
+				}
+				var height = $(document).height();
+				$('.ornament-input-group').css({ 'transform': 'translate3d(0,' + (distance / height) * 70 + 'px,0)', 'transition': 'none' });
+				$('.logo').attr("disabled", "disabled").css({ 'opacity': 1 - (distance / height) * 4, 'transition': 'none' });
+				$('.bookmark').attr("disabled", "disabled").css({ 'opacity': 1 - (distance / height) * 4, 'transform': 'scale(' + (1 - (distance / height) * .2) + ')', 'transition': 'none' });
+			} else if (phase === 'end' || phase === 'cancel') {
+				$('.logo').removeAttr("disabled").removeAttr('style');
+				$('.bookmark').removeAttr("disabled").removeAttr('style');
+				$('.ornament-input-group').removeAttr('style');
+				if (distance >= 100 && direction === "down") {
+					$('.ornament-input-group').click();
+					$('.logo').css('opacity', '0');
+					$('.bookmark').css('opacity', '0');
+					setTimeout(function () {
+						$('.logo').css('opacity', '');
+						$('.bookmark').css('opacity', '');
+					}, 200);
+				}
+			}
+		}
+	}
+);
