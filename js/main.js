@@ -692,14 +692,14 @@ require(['jquery'], function ($) {
 						}
 					}
 				});
-			})
 
-			// 绑定TAB点击事件
-			$(".choice-ul").click(function (evt) {
-				if (evt.target.nodeName == "LI") {
-					swiper.slideTo($(evt.target).index());
-				}
-			});
+				// 绑定TAB点击事件
+				$(".choice-ul").click(function (evt) {
+					if (evt.target.nodeName == "LI") {
+						swiper.slideTo($(evt.target).index());
+					}
+				});
+			})
 
 			// 绑定关闭按钮事件
 			$(".choice-close").click(function () {
