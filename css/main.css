@@ -220,7 +220,7 @@ body{font-family:Arial,Roboto,'Droid Sans';
     overflow: visible;
     opacity: 0;
     transform: translate3d(0,-20px,0);
-    transition: transform ease-in-out .3s .1s,opacity cubic-bezier(0.47, 0, 0.75, 0.72) .3s .1s;
+    transition: transform ease-in-out .3s .1s,opacity cubic-bezier(0.55, 0.06, 0.68, 0.19) .3s .1s;
 }
 .history.animation{
     opacity: 1;
