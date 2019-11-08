@@ -74,7 +74,7 @@ body,html {
     width: 100%;
 }
 .ornament-input-group {
-	border: 1px solid var(--dark);
+	border: 1.5px solid var(--dark);
 	min-height: 50px;
 	border-radius: 999px;
 	margin-bottom: 20px;
@@ -196,7 +196,7 @@ body{font-family:Arial,Roboto,'Droid Sans';
     display: none;
     opacity: 0;
     transition: opacity .3s;
-    background-color: #fdfdfd;
+    background-color: #f8f8f8;
 }
 .page-search.animation{
     opacity: 1;
@@ -235,7 +235,7 @@ body{font-family:Arial,Roboto,'Droid Sans';
     background-position: center;
 }
 .search-from{
-    border-top:1px solid #f9f9f9;display:none;
+    border-top:.5px solid #f9f9f9;display:none;
     display: flex;
     height: 55px;
 }
@@ -295,7 +295,10 @@ body{font-family:Arial,Roboto,'Droid Sans';
     text-align:center;
     flex: 1;
 }
-.shortcut *>li:active{background-color:#ddd;}
+.shortcut .shortcut1 li:active,
+.shortcut .shortcut2 li:active{
+    background:#ddd;
+}
 .shortcut1,.shortcut2{color:#444;}
 .shortcut3>li{padding:0 10px;background-position:center;background-size:20px;background-repeat:no-repeat;}
 .shortcut3{
@@ -331,22 +334,21 @@ body{font-family:Arial,Roboto,'Droid Sans';
 }
 .set-option-from{overflow:auto;height:calc(100% - 50px);}
 .set-header{
-    height: 44px;
-    line-height: 44px;
-    border-bottom:1px solid #eee;
+    height: 50px;
+    line-height: 50px;
 }
 .set-back{
     position:absolute;
-    height: 44px;
+    height: 50px;
     width: 64px;
     float: left;
 }
 .set-back:after,.set-back:before{
     content: "";
     width: 10px;
-    height: 1px;
+    height: 1.5px;
     position: absolute;
-    top: 21px;
+    top: 24px;
     background: var(--dark);
     transform-origin: 0;
     left: 30px;
@@ -356,6 +358,7 @@ body{font-family:Arial,Roboto,'Droid Sans';
 }
 .set-back:before{
     transform: rotate(45deg);
+    margin-top: -1px;
 }
 .set-logo{
     color:var(--dark);font-weight:bold;font-size:16px;
