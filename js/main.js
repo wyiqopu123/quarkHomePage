@@ -155,7 +155,7 @@ require(['jquery'], function ($) {
 	/**
 	 * 首页书签模块
 	 * @function init 初始化
-	 * @function bindEvent 绑定事件
+	 * @function bind 绑定事件
 	 * @function del 删除书签
 	 * @function add 添加书签
 	 */
@@ -337,9 +337,76 @@ require(['jquery'], function ($) {
 			storage.set("bookMark", Storage.bookMark);
 		}
 	};
-
 	// 初始化首页书签模块
 	bookMark.init();
+
+	/**
+	 * 搜索历史模块
+	 * @function init 初始化
+	 * @function load 加载HTML
+	 * @function bind 绑定事件
+	 * @function add 添加历史
+	 * @function empty 清空历史
+	 */
+	var searchHistory = {
+		init: function () {
+			var _ = this;
+			_.$history = $('.history');
+			var arr = storage.get("history");
+			if (arr === null) {
+				arr = [];
+			}
+			Storage.history = arr.slice(0, 10);
+			_.load();
+			_.bind();
+		},
+		load: function () {
+			var _ = this;
+			var html = '';
+			var l = Storage.history.length;
+			for (var i = 0; i < l; i++) {
+				html += '<li>' + Storage.history[i] + '</li>';
+			}
+			_.$history.find('.content').html(html);
+			if (l >= 1) {
+				$('.emptyHistory').show();
+			} else {
+				$('.emptyHistory').hide();
+			}
+		},
+		bind: function () {
+			var _ = this;
+			_.$history.click(function (evt) {
+				if (evt.target.nodeName === "LI") {
+					$('.search-input').val(evt.target.innerText).trigger("propertychange");
+					$('.search-btn').click();
+				} else if (evt.target.className === "emptyHistory") {
+					$(".search-input").focus();
+					$('.emptyHistory').addClass('animation');
+				} else if (evt.target.className === "emptyHistory animation") {
+					_.empty();
+				}
+			});
+		},
+		add: function (text) {
+			var _ = this;
+			var pos = Storage.history.indexOf(text);
+			if (pos !== -1) {
+				Storage.history.splice(pos, 1);
+			}
+			Storage.history.unshift(text);
+			_.load();
+			storage.set("history", Storage.history);
+		},
+		empty: function () {
+			var _ = this;
+			Storage.history = [];
+			_.load();
+			storage.set("history", Storage.history);
+		}
+	}
+	// 初始化搜索历史模块
+	searchHistory.init();
 
 	/**
 	 * 更改地址栏URL参数
@@ -362,22 +429,23 @@ require(['jquery'], function ($) {
 		$('body').css("pointer-events", "none");
 		history.pushState(null, document.title, changeParam("page", "search"));
 		$(".s-temp").focus();
-		//主页
+		// 隐藏主页
 		$(".ornament-input-group,.bookmark").addClass("animation");
-		//搜索页
-		$(".page-search").show().addClass("animation");
+		// 显示搜索页
+		$(".page-search").show();
 		setTimeout(function () {
+			$(".page-search").on('transitionend', function (evt) {
+				if (evt.target !== this) {
+					return;
+				}
+				$(".page-search").off('transitionend');
+				$(".search-input").val('').focus();
+				$('body').css("pointer-events", "");
+			}).addClass("animation");
+			$(".history").show().addClass("animation");
 			$(".input-bg").addClass("animation");
 			$(".shortcut").addClass("animation");
 		}, 1);
-		$(".page-search").on('animationend', function (evt) {
-			if (evt.target !== this) {
-				return;
-			}
-			$(".page-search").off('animationend');
-			$(".search-input").focus();
-			$('body').css("pointer-events", "");
-		});
 	});
 
 	$(".page-search").click(function (evt) {
@@ -394,9 +462,10 @@ require(['jquery'], function ($) {
 			//主页
 			$(".ornament-input-group,.bookmark").removeClass("animation");
 			//搜索页
-			$(".page-search").removeClass("animation");
+			$(".history").removeClass("animation");
 			$(".input-bg").removeClass("animation");
 			$(".shortcut").removeClass("animation");
+			$(".page-search").removeClass("animation");
 			$(".page-search").on('transitionend', function (evt) {
 				if (evt.target !== this) {
 					return;
@@ -410,6 +479,7 @@ require(['jquery'], function ($) {
 				$(".shortcut2,.shortcut3,.empty-input").hide();
 				$(".search-input").val('');
 				$('body').css("pointer-events", "");
+				$('.emptyHistory').removeClass('animation');
 			});
 		}
 	}, false);
@@ -428,11 +498,13 @@ require(['jquery'], function ($) {
 		var t = $(this).val();
 		$(".shortcut1,.shortcut2,.shortcut3").hide();
 		if (!t) {
+			$(".history").show();
 			$(".empty-input").hide();
 			$(".search-btn").html("取消");
 			$(".shortcut1").show();
-			$(".suggestion").html("");
+			$(".suggestion").hide();
 		} else {
+			$(".history").hide();
 			$(".empty-input").show();
 			$(".search-btn").html(/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&:/~\+#]*[\w\-\@?^=%&/~\+#])?/.test(t) ? "进入" : "搜索");
 			escape(t).indexOf("%u") < 0 ? $(".shortcut2").show() : $(".shortcut3").show();
@@ -454,7 +526,7 @@ require(['jquery'], function ($) {
 						}
 						html += '<li style="' + style + '"><div>' + data[i - 1].replace(t, '<b>' + t + '</b>') + "</div><span></span></li>";
 					}
-					$(".suggestion").html(html).scrollTop($(".suggestion")[0].scrollHeight);
+					$(".suggestion").show().html(html).scrollTop($(".suggestion")[0].scrollHeight);
 				}
 			});
 			$.ajax({
@@ -512,6 +584,7 @@ require(['jquery'], function ($) {
 		var text = $(".search-input").val();
 		if ($(".search-btn").text() === "进入") {
 			!text.match(/^(ht|f)tp(s?):\/\//) && (text = "http://" + text);
+			searchHistory.add(text);
 			location.href = text;
 			history.go(-1);
 		} else {
@@ -533,20 +606,22 @@ require(['jquery'], function ($) {
 		if (!text) {
 			return;
 		}
+		searchHistory.add(text);
 		history.go(-1);
 		setTimeout(function () { // 异步执行 兼容QQ浏览器
 			if (Storage.setData.engines === "via") {
 				window.via.searchText(text);
 			} else {
 				location.href = {
-					baidu: "https://www.baidu.com/s?wd=",
-					quark: "http://quark.sm.cn/s?q=",
-					google: "https://www.google.com.hk/search?q=",
-					bing: "http://cn.bing.com/search?q=",
-					sm: "http://m.sm.cn/s?q=",
-					haosou: "https://www.so.com/s?q=",
-					sogou: "https://www.sogou.com/web?query="
-				}[Storage.setData.engines] + text;
+					baidu: "https://www.baidu.com/s?wd=%s",
+					quark: "https://quark.sm.cn/s?q=%s",
+					google: "https://www.google.com.hk/search?q=%s",
+					bing: "https://cn.bing.com/search?q=%s",
+					sm: "https://m.sm.cn/s?q=%s",
+					haosou: "https://www.so.com/s?q=%s",
+					sogou: "https://www.sogou.com/web?query=%s",
+					diy: Storage.setData.diyEngines
+				}[Storage.setData.engines].replace("%s", text);
 			}
 		}, 1);
 	}
@@ -814,6 +889,7 @@ require(['jquery'], function ($) {
 						<option value="sm">神马</option>
 						<option value="haosou">好搜</option>
 						<option value="sogou">搜狗</option>
+						<option value="diy">自定义</option>
 					</select>
 				</li>
 				<li class="set-option" data-value="wallpaper">
@@ -920,6 +996,15 @@ require(['jquery'], function ($) {
 			var dom = $(this),
 				item = dom.parent().data("value"),
 				value = dom.val();
+			if (item === "engines" && value === "diy") {
+				var engines = prompt("输入搜索引擎网址，（用“%s”代替搜索字词）");
+				if (engines) {
+					Storage.setData.diyEngines = engines;
+				} else {
+					dom.val(Storage.setData.engines);
+					return;
+				}
+			}
 			// 保存设置
 			Storage.setData[item] = value;
 			storage.set("setData", Storage.setData);

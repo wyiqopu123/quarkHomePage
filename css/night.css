@@ -39,6 +39,13 @@ body {
 .shortcut .shortcut2 li:active{
     background:#171717;
 }
+.history li{
+	background:#1f1f1f;
+}
+.emptyHistory{
+	filter: invert(100%) brightness(60%);
+	background-color:#ccc;
+}
 .suggestion li {
 	filter: invert(100%) brightness(60%);
 }

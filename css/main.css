@@ -74,7 +74,7 @@ body,html {
     width: 100%;
 }
 .ornament-input-group {
-	border: 1.5px solid var(--dark);
+	border: 1.2px solid var(--dark);
 	min-height: 50px;
 	border-radius: 999px;
 	margin-bottom: 20px;
@@ -177,7 +177,9 @@ body{font-family:Arial,Roboto,'Droid Sans';
     fill:var(--white);
 }
 /* 背景页面 */
-.addbook-shade,.page-search,.set-from{position:absolute;left:0;top:0;width:100%;height:100%;background:var(--bg);animation:fadeIn .3s;}
+.addbook-shade,.page-search,.set-from{position:absolute;left:0;top:0;width:100%;height:100%;background:var(--bg);
+
+}
 .addbook-shade{background:rgba(0,0,0,0.5);}
 /* 添加书签 */
 .addbook-from{bottom: 0;background: #fff;position: absolute;animation:up .2s;padding:0 20px;width:100%;background:var(--bg);color:var(--dark)}
@@ -196,7 +198,7 @@ body{font-family:Arial,Roboto,'Droid Sans';
     display: none;
     opacity: 0;
     transition: opacity .3s;
-    background-color: #f8f8f8;
+    background-color: #fafafa;
 }
 .page-search.animation{
     opacity: 1;
@@ -207,10 +209,52 @@ body{font-family:Arial,Roboto,'Droid Sans';
     width: 100%;
     background: #fff;
 }
-.suggestion{overflow:auto;width:100%;
+.suggestion,.history{overflow:auto;width:100%;
     max-height: calc(100% - 99px);
     bottom: 99px;
     position: absolute;
+}
+.history{
+    font-size: 13px;
+    padding: 0 10px;
+    overflow: visible;
+    opacity: 0;
+    transform: translate3d(0,-20px,0);
+    transition: transform ease-in-out .3s .1s,opacity cubic-bezier(0.47, 0, 0.75, 0.72) .3s .1s;
+}
+.history.animation{
+    opacity: 1;
+    transform: translate3d(0,0,0);
+}
+.emptyHistory{
+    background: url(../img/empty.png) no-repeat 8px center;
+    background-size: 14px;
+    width: 30px;
+    right: 24px;
+    position: absolute;
+    top: -40px;
+    background-color: #f5f5f5;
+    border-radius: 9999px;
+    padding: 8px 0 8px 30px;
+    transition: .3s;
+}
+.emptyHistory.animation{
+    width: 92px;
+}
+.emptyHistory:after{
+    content: "全部删除";
+    white-space: pre;
+}
+.history .content{
+    display: flex;
+    flex-flow: wrap-reverse;
+}
+.history li{
+    padding: 8px 14px;
+    margin: 10px 6px;
+    background: #eee;
+    border-radius: 999px;
+    color:var(--dark)
 }
 .suggestion li{
     padding-left:50px;background:url(../img/su.png) no-repeat center;background-size:15px;background-position-x:20px;
@@ -235,7 +279,7 @@ body{font-family:Arial,Roboto,'Droid Sans';
     background-position: center;
 }
 .search-from{
-    border-top:.5px solid #f9f9f9;display:none;
+    border-top:.5px solid #eee;
     display: flex;
     height: 55px;
 }
@@ -244,7 +288,6 @@ body{font-family:Arial,Roboto,'Droid Sans';
     display: flex;
     flex:1;
     overflow: visible;
-    border-radius: 999px;
     font-size:14px;
     margin: 10px;
     background-color: #f9f9f9;
@@ -270,7 +313,6 @@ body{font-family:Arial,Roboto,'Droid Sans';
     height: 100%;
 }
 .search-btn{padding-right:15px;width:60px;text-align:center;line-height:55px;
-    font-size: 15px;
     height: 100%;
     color: var(--dark);
 }
